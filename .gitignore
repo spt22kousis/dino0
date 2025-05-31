@@ -1,0 +1,6 @@
+# /.idea
+# /.vscode
+/out
+# dino0.iml
+TRexGame.java
+# .gitignore

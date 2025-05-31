@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "TRexGame",
+            "request": "launch",
+            "mainClass": "TRexGame",
+            "projectName": "dino0_b16f77d6",
+            "vmArgs": "--module-path \"C:\\Program Files\\Eclipse Adoptium\\javafx-sdk-21.0.7\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.graphics"
+        
+        },
+        {
+            "type": "java",
+            "name": "DinoGame",
+            "request": "launch",
+            "mainClass": "DinoGame",
+            "projectName": "dino0_b16f77d6",
+            "vmArgs": "--module-path \"C:\\Program Files\\Eclipse Adoptium\\javafx-sdk-21.0.7\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.graphics"
+        }
+    ]
+}
