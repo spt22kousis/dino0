@@ -1,3 +1,10 @@
+# 環境設定
+launch.json vmoption 改成：
+```
+"--module-path \"C:\\你的javafx模組的儲存位置\\javafx-sdk-21.0.7\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.media --add-opens=javafx.base/com.sun.javafx=ALL-UNNAMED"
+```
+位置改成javafx模組的儲存位置
+
 # 小恐龍幾何衝刺遊戲
 
 ## 運行程式依賴

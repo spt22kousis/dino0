@@ -1,5 +1,7 @@
+build/
+
 /.idea
 /.vscode
 /out
-dino0.iml
 # .gitignore
+dino0.iml

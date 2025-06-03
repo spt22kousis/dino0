@@ -5,7 +5,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.geometry.Rectangle2D;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -108,9 +107,14 @@ public class GameScene extends Pane {
         finalLevelDistance = 0;
 
         try (InputStream is = getClass().getResourceAsStream(levelFilePath);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
 
-            String line;
+            String line, songpath;
+            // 載入音樂
+            songpath = reader.readLine();
+            BgmPlayer.init(songpath);
+            BgmPlayer.getInstance().play();
+            // 載入障礙物
             while ((line = reader.readLine()) != null) {
                 if (line.trim().startsWith("#") || line.trim().isEmpty()) {
                     continue;
@@ -134,11 +138,13 @@ public class GameScene extends Pane {
                         System.err.println("關卡檔案中數字格式無效，行：" + line + " - " + e.getMessage());
                     }
                 } else {
-                    System.err.println("關卡檔案中格式無效，行：" + line + "。預期格式為 'spawn_trigger_x,width,height,y_position,type'。");
+                    System.err
+                            .println("關卡檔案中格式無效，行：" + line + "。預期格式為 'spawn_trigger_x,width,height,y_position,type'。");
                 }
             }
             if (!levelSequence.isEmpty()) {
-                finalLevelDistance = levelSequence.get(levelSequence.size() - 1).spawnTriggerX + MainApplication.getWIDTH();
+                finalLevelDistance = levelSequence.get(levelSequence.size() - 1).spawnTriggerX
+                        + MainApplication.getWIDTH();
             } else {
                 finalLevelDistance = 0;
                 levelModeActive = false;
@@ -179,7 +185,9 @@ public class GameScene extends Pane {
                 }
             }
         } else if (!allLevelObstaclesSpawned) {
-            if (obstacles.isEmpty() || (now - (obstacles.get(obstacles.size() - 1).getSpawnTime())) > (1500 + random.nextInt(1000)) * 1_000_000L) {
+            if (obstacles.isEmpty()
+                    || (now - (obstacles.get(obstacles.size() - 1).getSpawnTime())) > (1500 + random.nextInt(1000))
+                            * 1_000_000L) {
                 RegularObstacle newRandomObstacle = new RegularObstacle();
                 obstacles.add(newRandomObstacle);
             }
@@ -202,7 +210,8 @@ public class GameScene extends Pane {
                     double platformTop = obstacle.getY();
 
                     if (dino.getYVelocity() > 0 && dinoPreviousBottom <= platformTop &&
-                            dino.getX() + Dino.DINO_WIDTH > obstacle.getX() && dino.getX() < obstacle.getX() + obstacle.getWidth()) {
+                            dino.getX() + Dino.DINO_WIDTH > obstacle.getX()
+                            && dino.getX() < obstacle.getX() + obstacle.getWidth()) {
                         dino.setY(platformTop - Dino.DINO_HEIGHT);
                         dino.setYVelocity(0);
                         dino.setJumping(false);
@@ -241,13 +250,15 @@ public class GameScene extends Pane {
 
         if (levelModeActive || allLevelObstaclesSpawned) {
             double completionPercentage = (gameWorldDistance / finalLevelDistance) * 100;
-            if (completionPercentage > 100) completionPercentage = 100;
+            if (completionPercentage > 100)
+                completionPercentage = 100;
             String completionText = String.format("進度: %.1f%%", completionPercentage);
             gc.fillText(completionText, MainApplication.getWIDTH() - 120, 30);
         }
     }
 
     private void renderGameOver() {
+        BgmPlayer.getInstance().stop();
         gc.setFill(Color.LIGHTGRAY);
         gc.fillRect(0, 0, MainApplication.getWIDTH(), MainApplication.getHEIGHT());
 
@@ -256,27 +267,34 @@ public class GameScene extends Pane {
 
         gc.setFill(Color.BLACK);
         gc.setFont(new Font("Arial", 50));
-        gc.fillText("遊戲結束", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 2.5, MainApplication.getHEIGHT() / 2 - 20);
+        gc.fillText("遊戲結束", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 2.5,
+                MainApplication.getHEIGHT() / 2 - 20);
 
         gc.setFont(new Font("Arial", 20));
-        gc.fillText("按 R 重新開始", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4, MainApplication.getHEIGHT() / 2 + 20);
-        gc.fillText("按 M 返回選單", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4, MainApplication.getHEIGHT() / 2 + 45);
+        gc.fillText("按 R 重新開始", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
+                MainApplication.getHEIGHT() / 2 + 20);
+        gc.fillText("按 M 返回選單", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
+                MainApplication.getHEIGHT() / 2 + 45);
 
         gc.setFont(new Font("Arial", 16));
-        gc.fillText("最終分數: " + score, MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4, MainApplication.getHEIGHT() / 2 + 70);
+        gc.fillText("最終分數: " + score, MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
+                MainApplication.getHEIGHT() / 2 + 70);
 
         String completionText = "";
         if (levelComplete) {
             completionText = "關卡完成度: 100.0%";
         } else {
             double completionPercentage = (gameWorldDistance / finalLevelDistance) * 100;
-            if (completionPercentage > 100) completionPercentage = 100;
+            if (completionPercentage > 100)
+                completionPercentage = 100;
             completionText = String.format("關卡完成度: %.1f%%", completionPercentage);
         }
-        gc.fillText(completionText, MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4, MainApplication.getHEIGHT() / 2 + 95);
+        gc.fillText(completionText, MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
+                MainApplication.getHEIGHT() / 2 + 95);
     }
 
     private void renderLevelComplete() {
+        BgmPlayer.getInstance().stop();
         gc.setFill(Color.LIGHTGRAY);
         gc.fillRect(0, 0, MainApplication.getWIDTH(), MainApplication.getHEIGHT());
 
@@ -285,17 +303,22 @@ public class GameScene extends Pane {
 
         gc.setFill(Color.BLUE);
         gc.setFont(new Font("Arial", 50));
-        gc.fillText("關卡完成！", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 3.5, MainApplication.getHEIGHT() / 2 - 20);
+        gc.fillText("關卡完成！", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 3.5,
+                MainApplication.getHEIGHT() / 2 - 20);
 
         gc.setFill(Color.BLACK);
         gc.setFont(new Font("Arial", 20));
-        gc.fillText("按 R 重新開始", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4, MainApplication.getHEIGHT() / 2 + 20);
-        gc.fillText("按 M 返回選單", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4, MainApplication.getHEIGHT() / 2 + 45);
+        gc.fillText("按 R 重新開始", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
+                MainApplication.getHEIGHT() / 2 + 20);
+        gc.fillText("按 M 返回選單", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
+                MainApplication.getHEIGHT() / 2 + 45);
 
         gc.setFont(new Font("Arial", 16));
-        gc.fillText("最終分數: " + score, MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4, MainApplication.getHEIGHT() / 2 + 70);
+        gc.fillText("最終分數: " + score, MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
+                MainApplication.getHEIGHT() / 2 + 70);
 
-        gc.fillText("關卡完成度: 100.0%", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4, MainApplication.getHEIGHT() / 2 + 95);
+        gc.fillText("關卡完成度: 100.0%", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
+                MainApplication.getHEIGHT() / 2 + 95);
     }
 
     private void resetGame() {
