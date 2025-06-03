@@ -55,6 +55,9 @@ public class MainApplication extends Application {
 
         gameScene.setOnKeyPressed(event -> game.handleInput(event.getCode()));
 
+        // 再次搶回焦點，確保 GameScene 可以立刻拿到鍵盤輸入
+        game.requestFocus();
+
         primaryStage.setScene(gameScene);
         game.startGameLoop();
     }
