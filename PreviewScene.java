@@ -77,6 +77,7 @@ public class PreviewScene extends Pane {
              BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
 
             String line;
+            reader.readLine();
             while ((line = reader.readLine()) != null) {
                 if (line.trim().startsWith("#") || line.trim().isEmpty()) {
                     continue;
