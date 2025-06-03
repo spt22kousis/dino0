@@ -56,19 +56,51 @@ public class GameScene extends Pane {
     }
 
     public void startGameLoop() {
+        // 定義 60 FPS 的幀間隔：1 秒 = 1_000_000_000 納秒
+        final long intervalNanos = 1_000_000_000L / 60;
         gameTimer = new AnimationTimer() {
+            private long lastUpdate = 0; // 上一次實際 update/render 時的時間戳
+            private long accumulator = 0;
+
             @Override
             public void handle(long now) {
+                if (lastUpdate == 0) {
+                    // 第一幀，先初始化 lastUpdate
+                    lastUpdate = now;
+                    return;
+                }
+
+                // 本幀與上一幀之間經過的時間
+                long delta = now - lastUpdate;
+                accumulator += delta;
+
+                // 如果還沒累積到一個 interval，就不做任何更新
+                if (accumulator < intervalNanos) {
+                    return;
+                }
+
+                // 至少要跑一次 update/render
+                // （若 accumulator 很大，則可以跑多次 update 減少「跳幀」）
+                while (accumulator >= intervalNanos) {
+                    if (!gameOver && !levelComplete) {
+                        updateGame(now);
+                    }
+                    accumulator -= intervalNanos;
+                }
+
+                // 不管要不要顯示「遊戲結束/通關畫面」，都先繪製一次遊戲畫面或結算畫面
                 if (!gameOver && !levelComplete) {
-                    updateGame(now);
                     renderGame();
                 } else if (gameOver) {
                     renderGameOver();
                     stopGameLoop();
-                } else if (levelComplete) {
+                } else {
                     renderLevelComplete();
                     stopGameLoop();
                 }
+
+                // 把 lastUpdate 推到「剛剛跑 update 時的時間」
+                lastUpdate = now;
             }
         };
         BgmPlayer.getInstance().play();
@@ -93,6 +125,7 @@ public class GameScene extends Pane {
         return levelComplete;
     }
 
+    // 偵測鍵盤輸入
     public void handleInput(KeyCode code) {
         if (code == KeyCode.SPACE || code == KeyCode.UP) {
             if (!gameOver && !levelComplete) {
@@ -175,7 +208,7 @@ public class GameScene extends Pane {
         gameWorldDistance += Obstacle.OBSTACLE_SPEED;
 
         if (levelModeActive) {
-            if (currentSequenceIndex < levelSequence.size()) {
+            while (currentSequenceIndex < levelSequence.size()) {
                 LevelObstacleData data = levelSequence.get(currentSequenceIndex);
                 if (gameWorldDistance >= data.spawnTriggerX) {
                     Obstacle newObstacle;
@@ -186,12 +219,22 @@ public class GameScene extends Pane {
                     }
                     obstacles.add(newObstacle);
                     currentSequenceIndex++;
-
+                    // 判斷是否還有障礙物未生成
                     if (currentSequenceIndex >= levelSequence.size()) {
                         allLevelObstaclesSpawned = true;
                         levelModeActive = false;
                         System.out.println("所有關卡障礙物已排程。等待它們通過。");
                     }
+                    // 下一個障礙物也是同一個生成位置
+                    if (levelSequence.get(currentSequenceIndex).spawnTriggerX == data.spawnTriggerX) {
+                        // 等待迴圈再次執行，物件就會被加入世界中
+                        continue;
+                    } else {
+                        // 下個障礙物生成位置不同，跳出迴圈
+                        break;
+                    }
+                } else {
+                    break;
                 }
             }
         } else if (!allLevelObstaclesSpawned) {
