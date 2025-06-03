@@ -208,7 +208,7 @@ public class GameScene extends Pane {
         gameWorldDistance += Obstacle.OBSTACLE_SPEED;
 
         if (levelModeActive) {
-            if (currentSequenceIndex < levelSequence.size()) {
+            while (currentSequenceIndex < levelSequence.size()) {
                 LevelObstacleData data = levelSequence.get(currentSequenceIndex);
                 if (gameWorldDistance >= data.spawnTriggerX) {
                     Obstacle newObstacle;
@@ -219,12 +219,22 @@ public class GameScene extends Pane {
                     }
                     obstacles.add(newObstacle);
                     currentSequenceIndex++;
-
+                    // 判斷是否還有障礙物未生成
                     if (currentSequenceIndex >= levelSequence.size()) {
                         allLevelObstaclesSpawned = true;
                         levelModeActive = false;
                         System.out.println("所有關卡障礙物已排程。等待它們通過。");
                     }
+                    // 下一個障礙物也是同一個生成位置
+                    if (levelSequence.get(currentSequenceIndex).spawnTriggerX == data.spawnTriggerX) {
+                        // 等待迴圈再次執行，物件就會被加入世界中
+                        continue;
+                    } else {
+                        // 下個障礙物生成位置不同，跳出迴圈
+                        break;
+                    }
+                } else {
+                    break;
                 }
             }
         } else if (!allLevelObstaclesSpawned) {
