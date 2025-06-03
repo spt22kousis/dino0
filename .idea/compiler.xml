@@ -2,6 +2,6 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
-    <option name="ADDITIONAL_OPTIONS_STRING" value="--module-path &quot;C:\Program Files\Eclipse Adoptium\javafx-sdk-21.0.7\lib&quot; --add-modules javafx.controls,javafx.fxml,javafx.graphics" />
+    <option name="ADDITIONAL_OPTIONS_STRING" value="--module-path &quot;C:\Program Files\Java\javafx-sdk-21.0.7\lib&quot; --add-modules javafx.controls,javafx.fxml,javafx.graphics" />
   </component>
 </project>

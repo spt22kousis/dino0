@@ -1,5 +1,5 @@
 {
     "java.project.referencedLibraries": [
-        "C:\\Program Files\\Eclipse Adoptium\\javafx-sdk-21.0.7\\lib\\*.jar"
+        "C:\\Program Files\\Java\\javafx-sdk-21.0.7\\lib\\*.jar"
     ]
 }

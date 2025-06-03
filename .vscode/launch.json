@@ -5,24 +5,8 @@
             "name": "MainApplication",
             "request": "launch",
             "mainClass": "MainApplication",
-            "projectName": "dino0_b16f77d6",
-            "vmArgs": "--module-path \"C:\\Program Files\\Eclipse Adoptium\\javafx-sdk-21.0.7\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.graphics"
-        },
-        {
-            "type": "java",
-            "name": "TRexGame",
-            "request": "launch",
-            "mainClass": "TRexGame",
-            "projectName": "dino0_b16f77d6",
-            "vmArgs": "--module-path \"C:\\Program Files\\Eclipse Adoptium\\javafx-sdk-21.0.7\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.graphics"
-        },
-        {
-            "type": "java",
-            "name": "DinoGame",
-            "request": "launch",
-            "mainClass": "DinoGame",
-            "projectName": "dino0_b16f77d6",
-            "vmArgs": "--module-path \"C:\\Program Files\\Eclipse Adoptium\\javafx-sdk-21.0.7\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.graphics"
+            "projectName": "dino0_c13b5796",
+            "vmArgs": "--module-path \"C:\\Program Files\\Java\\javafx-sdk-21.0.7\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.media --add-opens=javafx.base/com.sun.javafx=ALL-UNNAMED"
         }
     ]
 }

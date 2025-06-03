@@ -1,3 +1,6 @@
+.//music/Unity.MP3
+# 這是關卡1的音樂檔案路址
+
 # 這是 level.txt 檔案的範例內容 (支援浮空障礙物)
 # 格式: spawn_trigger_x,width,height,y_position,type
 
