@@ -1,4 +1,6 @@
 import javafx.animation.AnimationTimer;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
@@ -7,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -42,7 +45,12 @@ public class GameScene extends Pane {
         Canvas canvas = new Canvas(MainApplication.getWIDTH(), MainApplication.getHEIGHT());
         gc = canvas.getGraphicsContext2D();
         getChildren().add(canvas);
-
+        // 2. 讓 GameScene 這個 Pane 可以拿到鍵盤 focus，並在按鍵時呼叫 handleInput
+        setFocusTraversable(true);
+        setOnKeyPressed(evt -> handleInput(evt.getCode()));
+        // 注意：到畫面真正顯示前（Stage.show()）這個 requestFocus 有時候還無效，
+        // 但可以先呼叫一次。真正顯示後 GameScene 才能拿到焦點。
+        requestFocus();
         dino = new Dino();
         loadLevel("level1.txt");
     }
@@ -56,11 +64,14 @@ public class GameScene extends Pane {
                     renderGame();
                 } else if (gameOver) {
                     renderGameOver();
+                    stopGameLoop();
                 } else if (levelComplete) {
                     renderLevelComplete();
+                    stopGameLoop();
                 }
             }
         };
+        BgmPlayer.getInstance().play();
         gameTimer.start();
     }
 
@@ -113,7 +124,6 @@ public class GameScene extends Pane {
             // 載入音樂
             songpath = reader.readLine();
             BgmPlayer.init(songpath);
-            BgmPlayer.getInstance().play();
             // 載入障礙物
             while ((line = reader.readLine()) != null) {
                 if (line.trim().startsWith("#") || line.trim().isEmpty()) {
@@ -258,67 +268,62 @@ public class GameScene extends Pane {
     }
 
     private void renderGameOver() {
+        // 1. 停止背景音樂
         BgmPlayer.getInstance().stop();
-        gc.setFill(Color.LIGHTGRAY);
-        gc.fillRect(0, 0, MainApplication.getWIDTH(), MainApplication.getHEIGHT());
 
-        gc.setFill(Color.DARKGRAY);
-        gc.fillRect(0, GROUND_Y, MainApplication.getWIDTH(), MainApplication.getHEIGHT() - GROUND_Y);
+        // 2. 載入 GameOver.fxml
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("./GameOver.fxml"));
+            Parent gameOverRoot = loader.load();
 
-        gc.setFill(Color.BLACK);
-        gc.setFont(new Font("Arial", 50));
-        gc.fillText("遊戲結束", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 2.5,
-                MainApplication.getHEIGHT() / 2 - 20);
+            // 3. 取得 Controller，把分數與完成度傳進去
+            GameOverController controller = loader.getController();
+            controller.setScore(score);
 
-        gc.setFont(new Font("Arial", 20));
-        gc.fillText("按 R 重新開始", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
-                MainApplication.getHEIGHT() / 2 + 20);
-        gc.fillText("按 M 返回選單", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
-                MainApplication.getHEIGHT() / 2 + 45);
-
-        gc.setFont(new Font("Arial", 16));
-        gc.fillText("最終分數: " + score, MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
-                MainApplication.getHEIGHT() / 2 + 70);
-
-        String completionText = "";
-        if (levelComplete) {
-            completionText = "關卡完成度: 100.0%";
-        } else {
+            String completionText;
             double completionPercentage = (gameWorldDistance / finalLevelDistance) * 100;
             if (completionPercentage > 100)
                 completionPercentage = 100;
             completionText = String.format("關卡完成度: %.1f%%", completionPercentage);
+            controller.setCompletionText(completionText);
+
+            // 4. 把原本畫布清空，改把 FXML root 加進來
+            this.getChildren().clear();
+            this.getChildren().add(gameOverRoot);
+
+            // ★ 請特別注意：FXML 加進來後，要再把 focus 要回給 GameScene ★
+            this.requestFocus();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 若載入失敗，可以 fallback 到 Canvas 原本的繪製方式，或者只是印錯誤訊息
         }
-        gc.fillText(completionText, MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
-                MainApplication.getHEIGHT() / 2 + 95);
     }
 
     private void renderLevelComplete() {
+        // 1. 停止背景音樂
         BgmPlayer.getInstance().stop();
-        gc.setFill(Color.LIGHTGRAY);
-        gc.fillRect(0, 0, MainApplication.getWIDTH(), MainApplication.getHEIGHT());
 
-        gc.setFill(Color.DARKGRAY);
-        gc.fillRect(0, GROUND_Y, MainApplication.getWIDTH(), MainApplication.getHEIGHT() - GROUND_Y);
+        // 2. 載入 LevelComplete.fxml
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("./LevelComplete.fxml"));
+            Parent levelCompleteRoot = loader.load();
 
-        gc.setFill(Color.BLUE);
-        gc.setFont(new Font("Arial", 50));
-        gc.fillText("關卡完成！", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 3.5,
-                MainApplication.getHEIGHT() / 2 - 20);
+            // 3. 取得 Controller，把分數與完成度傳進去
+            LevelCompleteController controller = loader.getController();
+            controller.setScore(score);
 
-        gc.setFill(Color.BLACK);
-        gc.setFont(new Font("Arial", 20));
-        gc.fillText("按 R 重新開始", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
-                MainApplication.getHEIGHT() / 2 + 20);
-        gc.fillText("按 M 返回選單", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
-                MainApplication.getHEIGHT() / 2 + 45);
+            // 4. 清掉原本的畫布，改以 FXML 版面
+            this.getChildren().clear();
+            this.getChildren().add(levelCompleteRoot);
 
-        gc.setFont(new Font("Arial", 16));
-        gc.fillText("最終分數: " + score, MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
-                MainApplication.getHEIGHT() / 2 + 70);
+            // ★ 請特別注意：FXML 加進來後，要再把 focus 要回給 GameScene ★
+            this.requestFocus();
 
-        gc.fillText("關卡完成度: 100.0%", MainApplication.getWIDTH() / 2 - gc.getFont().getSize() * 4,
-                MainApplication.getHEIGHT() / 2 + 95);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 如果失敗，就 fallback 或印錯誤
+        }
     }
 
     private void resetGame() {
@@ -331,5 +336,11 @@ public class GameScene extends Pane {
         gameWorldDistance = 0;
         finalLevelDistance = 0;
         loadLevel("level1.txt");
+        this.getChildren().clear();
+        Canvas canvas = new Canvas(MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+        gc = canvas.getGraphicsContext2D();
+        getChildren().add(canvas);
+        BgmPlayer.getInstance().play();
+        gameTimer.start();
     }
 }
