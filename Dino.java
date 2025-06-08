@@ -1,6 +1,6 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.geometry.Rectangle2D;
+// import javafx.geometry.Rectangle2D;
 
 public class Dino {
     public static final int DINO_WIDTH = 40;
@@ -34,10 +34,6 @@ public class Dino {
     public void render(GraphicsContext gc) {
         gc.setFill(Color.GREEN);
         gc.fillRect(x, y, DINO_WIDTH, DINO_HEIGHT);
-    }
-
-    public Rectangle2D getBounds() {
-        return new Rectangle2D(x, y, DINO_WIDTH, DINO_HEIGHT);
     }
 
     public double getY() {

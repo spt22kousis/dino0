@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+// import java.util.Random;
 
 public class GameScene extends Pane {
 
@@ -22,7 +22,7 @@ public class GameScene extends Pane {
 
     private Dino dino;
     private List<Obstacle> obstacles = new ArrayList<>();
-    private Random random = new Random();
+    // private Random random = new Random();
     private long score = 0;
     private boolean gameOver = false;
     private boolean levelComplete = false;
@@ -208,12 +208,14 @@ public class GameScene extends Pane {
                 }
             }
         } else if (!allLevelObstaclesSpawned) {
-            if (obstacles.isEmpty()
-                    || (now - (obstacles.get(obstacles.size() - 1).getSpawnTime())) > (1500 + random.nextInt(1000))
-                            * 1_000_000L) {
-                RegularObstacle newRandomObstacle = new RegularObstacle();
-                obstacles.add(newRandomObstacle);
-            }
+            // if (obstacles.isEmpty()
+            // || (now - (obstacles.get(obstacles.size() - 1).getSpawnTime())) > (1500 +
+            // random.nextInt(1000))
+            // * 1_000_000L) {
+            // RegularObstacle newRandomObstacle = new RegularObstacle();
+            // obstacles.add(newRandomObstacle);
+            // }
+            System.exit(-1);
         }
 
         obstacles.removeIf(obstacle -> {
@@ -227,25 +229,9 @@ public class GameScene extends Pane {
         }
 
         for (Obstacle obstacle : obstacles) {
-            if (dino.getBounds().intersects(obstacle.getBounds())) {
-                if (obstacle instanceof PlatformObstacle) {
-                    double dinoPreviousBottom = dino.getY() - dino.getYVelocity() + Dino.DINO_HEIGHT;
-                    double platformTop = obstacle.getY();
-
-                    if (dino.getYVelocity() > 0 && dinoPreviousBottom <= platformTop &&
-                            dino.getX() + Dino.DINO_WIDTH > obstacle.getX()
-                            && dino.getX() < obstacle.getX() + obstacle.getWidth()) {
-                        dino.setY(platformTop - Dino.DINO_HEIGHT);
-                        dino.setYVelocity(0);
-                        dino.setJumping(false);
-                    } else {
-                        gameOver = true;
-                        break;
-                    }
-                } else {
-                    gameOver = true;
-                    break;
-                }
+            if (obstacle.getColide(dino)) {
+                gameOver = true;
+                break;
             }
         }
 

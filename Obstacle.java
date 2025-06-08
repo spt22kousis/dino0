@@ -1,6 +1,5 @@
 import javafx.scene.canvas.GraphicsContext;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 
 public abstract class Obstacle {
     protected static final int OBSTACLE_MIN_WIDTH = 20;
@@ -13,20 +12,15 @@ public abstract class Obstacle {
     protected double y;
     protected double width;
     protected double height;
-    protected Color color;
+    protected Image image;
     protected long spawnTime;
 
-    public Obstacle() {
+    public Obstacle(double width, double height, double yPosition, String imapePath) {
         this.x = MainApplication.getWIDTH();
-        this.spawnTime = System.nanoTime();
-    }
-
-    public Obstacle(double worldX, double width, double height, double yPosition, Color color) {
-        this.x = worldX;
         this.width = width;
         this.height = height;
         this.y = yPosition;
-        this.color = color;
+        this.image = new Image(imapePath, width, height, false, false);
     }
 
     public void update() {
@@ -35,14 +29,20 @@ public abstract class Obstacle {
 
     public abstract void render(GraphicsContext gc);
 
-    public abstract void render(GraphicsContext gc, double cameraX);
+    public abstract void render(GraphicsContext gc, double camerY);
 
     public boolean isOffScreen() {
         return x + width < 0;
     }
 
-    public Rectangle2D getBounds() {
-        return new Rectangle2D(x, y, width, height);
+    // 撞到return true
+    public boolean getColide(Dino b) {
+        if (b.getX() + Dino.DINO_WIDTH >= this.x && b.getX() <= this.x + width) {
+            if (b.getY() + Dino.DINO_HEIGHT - 10 >= this.y) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public double getX() {

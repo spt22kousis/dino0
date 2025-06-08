@@ -66,7 +66,8 @@ public class PreviewScene extends Pane {
 
     public void moveCamera(double deltaX) {
         cameraX += deltaX;
-        if (cameraX < 0) cameraX = 0;
+        if (cameraX < 0)
+            cameraX = 0;
     }
 
     private void loadLevel(String levelFilePath) {
@@ -74,7 +75,7 @@ public class PreviewScene extends Pane {
 
         List<LevelObstacleData> tempLevelSequence = new ArrayList<>();
         try (InputStream is = getClass().getResourceAsStream(levelFilePath);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
 
             String line;
             reader.readLine();
@@ -101,16 +102,17 @@ public class PreviewScene extends Pane {
                         System.err.println("關卡檔案中數字格式無效，行：" + line + " - " + e.getMessage());
                     }
                 } else {
-                    System.err.println("關卡檔案中格式無效，行：" + line + "。預期格式為 'spawn_trigger_x,width,height,y_position,type'。");
+                    System.err
+                            .println("關卡檔案中格式無效，行：" + line + "。預期格式為 'spawn_trigger_x,width,height,y_position,type'。");
                 }
             }
 
             for (LevelObstacleData data : tempLevelSequence) {
                 Obstacle newObstacle;
                 if (data.type.equals("platform")) {
-                    newObstacle = new PlatformObstacle(data.spawnTriggerX, data.width, data.height, data.yPosition);
+                    newObstacle = new PlatformObstacle(data.width, data.height, data.yPosition);
                 } else {
-                    newObstacle = new RegularObstacle(data.spawnTriggerX, data.width, data.height, data.yPosition);
+                    newObstacle = new RegularObstacle(data.width, data.height, data.yPosition);
                 }
                 obstacles.add(newObstacle);
             }
@@ -130,7 +132,8 @@ public class PreviewScene extends Pane {
         gc.fillRect(0, 0, MainApplication.getWIDTH(), MainApplication.getHEIGHT());
 
         gc.setFill(Color.DARKGRAY);
-        gc.fillRect(0 - cameraX, GROUND_Y, MainApplication.getWIDTH() + cameraX * 2, MainApplication.getHEIGHT() - GROUND_Y);
+        gc.fillRect(0 - cameraX, GROUND_Y, MainApplication.getWIDTH() + cameraX * 2,
+                MainApplication.getHEIGHT() - GROUND_Y);
 
         for (Obstacle obstacle : obstacles) {
             obstacle.render(gc, cameraX);
