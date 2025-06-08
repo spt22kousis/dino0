@@ -37,8 +37,12 @@ public class PlatformObstacle extends Obstacle {
     public boolean getColide(Dino b) {
         colide = colideStatus(b);
         if (colide) {
-            b.setY(this.y - Dino.DINO_HEIGHT);
-            b.isJumping = false;
+            if (b.getYVelocity() >= 0) {
+                b.setY(this.y - Dino.DINO_HEIGHT);
+                b.isJumping = false;
+            } else {
+                b.setYVelocity(-b.getYVelocity());
+            }
         } else if (prev) {
             b.isJumping = true;
         }
@@ -47,6 +51,9 @@ public class PlatformObstacle extends Obstacle {
     }
 
     public boolean colideStatus(Dino b) { // 返回值：b是否站在上面
-        return b.getX() + Dino.DINO_WIDTH > this.x && b.getX() <= this.x + width && b.getY() + Dino.DINO_HEIGHT >= this.y;
+        return b.getX() + Dino.DINO_WIDTH > this.x &&
+                b.getX() <= this.x + width &&
+                b.getY() + Dino.DINO_HEIGHT >= this.y &&
+                b.getY() <= this.y + height;
     }
 }

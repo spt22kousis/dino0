@@ -29,7 +29,7 @@ public abstract class Obstacle {
 
     public abstract void render(GraphicsContext gc);
 
-    public abstract void render(GraphicsContext gc, double camerY);
+    public abstract void render(GraphicsContext gc, double cameraY);
 
     public boolean isOffScreen() {
         return x + width < 0;
