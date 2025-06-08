@@ -11,7 +11,7 @@ public class Dino {
     private double y = MainApplication.getHEIGHT() - 50 - DINO_HEIGHT;
     private double x = 50;
     private double yVelocity = 0;
-    private boolean isJumping = false;
+    public boolean isJumping = false;
 
     public void jump() {
         if (!isJumping) {
@@ -26,8 +26,11 @@ public class Dino {
 
         if (y >= MainApplication.getHEIGHT() - 50 - DINO_HEIGHT) {
             y = MainApplication.getHEIGHT() - 50 - DINO_HEIGHT;
-            yVelocity = 0;
             isJumping = false;
+        }
+
+        if (!isJumping) {
+            yVelocity = 0;
         }
     }
 

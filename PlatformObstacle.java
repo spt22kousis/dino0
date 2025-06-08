@@ -4,6 +4,9 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class PlatformObstacle extends Obstacle {
 
+    private boolean prev = false;
+    private boolean colide = false;
+
     // public PlatformObstacle() {
     // super();
     // Random localRandom = new Random();
@@ -32,11 +35,18 @@ public class PlatformObstacle extends Obstacle {
     @Override
     // 如果在上面就不算撞到
     public boolean getColide(Dino b) {
-        if (b.getX() + Dino.DINO_WIDTH > this.x && b.getX() <= this.x + width) {
-            if (b.getY() + Dino.DINO_HEIGHT >= this.y) {
-                b.setY(b.getY() - this.y);
-            }
+        colide = colideStatus(b);
+        if (colide) {
+            b.setY(this.y - Dino.DINO_HEIGHT);
+            b.isJumping = false;
+        } else if (prev) {
+            b.isJumping = true;
         }
+        prev = colide;
         return false;
+    }
+
+    public boolean colideStatus(Dino b) { // 返回值：b是否站在上面
+        return b.getX() + Dino.DINO_WIDTH > this.x && b.getX() <= this.x + width && b.getY() + Dino.DINO_HEIGHT >= this.y;
     }
 }
