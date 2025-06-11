@@ -5,4 +5,4 @@
 # 格式: spawn_trigger_x,width,height,y_position,type
 # 遊戲世界每秒前進600像素
 
-572.46,50.0,50.0,500.0,regular
+572.46,50.0,50.0,500.0,platform
