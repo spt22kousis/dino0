@@ -36,9 +36,12 @@ public abstract class Obstacle {
     }
 
     // 撞到return true
-    public boolean getColide(Dino b) {
-        if (b.getX() + Dino.DINO_WIDTH >= this.x && b.getX() <= this.x + width) {
-            if (b.getY() + Dino.DINO_HEIGHT - 10 >= this.y) {
+    public boolean getColide(Player player) {
+        int playerWidth = Player.PLAYER_WIDTH;
+        int playerHeight = Player.PLAYER_HEIGHT;
+
+        if (player.getX() + playerWidth >= this.x && player.getX() <= this.x + width) {
+            if (player.getY() + playerHeight - 10 >= this.y) {
                 return true;
             }
         }
