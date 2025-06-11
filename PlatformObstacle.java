@@ -34,26 +34,26 @@ public class PlatformObstacle extends Obstacle {
 
     @Override
     // 如果在上面就不算撞到
-    public boolean getColide(Dino b) {
-        colide = colideStatus(b);
+    public boolean getColide(Player player) {
+        colide = colideStatus(player);
         if (colide) {
-            if (b.getYVelocity() >= 0) {
-                b.setY(this.y - Dino.DINO_HEIGHT);
-                b.isJumping = false;
+            if (player.getYVelocity() >= 0) {
+                player.setY(this.y - Player.PLAYER_HEIGHT);
+                player.setJumping(false);
             } else {
-                b.setYVelocity(-b.getYVelocity());
+                player.setYVelocity(-player.getYVelocity());
             }
         } else if (prev) {
-            b.isJumping = true;
+            player.setJumping(true);
         }
         prev = colide;
         return false;
     }
 
-    public boolean colideStatus(Dino b) { // 返回值：b是否站在上面
-        return b.getX() + Dino.DINO_WIDTH > this.x &&
-                b.getX() <= this.x + width &&
-                b.getY() + Dino.DINO_HEIGHT >= this.y &&
-                b.getY() <= this.y + height;
+    public boolean colideStatus(Player player) { // 返回值：player是否站在上面
+        return player.getX() + Player.PLAYER_WIDTH > this.x &&
+                player.getX() <= this.x + width &&
+                player.getY() + Player.PLAYER_HEIGHT >= this.y &&
+                player.getY() <= this.y + height;
     }
 }

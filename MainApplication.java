@@ -1,4 +1,6 @@
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
@@ -6,6 +8,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
+import java.io.IOException;
 
 public class MainApplication extends Application {
 
@@ -24,6 +27,25 @@ public class MainApplication extends Application {
     }
 
     public void showStartMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("MainMenu.fxml"));
+            Parent root = loader.load();
+
+            // Get the controller and set the main application reference
+            MainMenuController controller = loader.getController();
+            controller.setMainApp(this);
+
+            Scene scene = new Scene(root, WIDTH, HEIGHT);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Fallback to the old menu if FXML loading fails
+            showFallbackMenu();
+        }
+    }
+
+    private void showFallbackMenu() {
         VBox menuRoot = new VBox(20);
         menuRoot.setAlignment(Pos.CENTER);
         menuRoot.setPrefSize(WIDTH, HEIGHT);
@@ -34,23 +56,23 @@ public class MainApplication extends Application {
         title.setFont(titleFont);
         title.setFill(Color.DARKBLUE);
 
-        Button playButton = new Button("遊玩關卡");
-        playButton.setFont(new Font("Arial", 24));
-        playButton.setOnAction(e -> showGameScene());
+        Button level1Button = new Button("關卡 1");
+        level1Button.setFont(new Font("Arial", 24));
+        level1Button.setOnAction(e -> startGame("level1.txt"));
 
-        Button previewButton = new Button("預覽關卡");
-        previewButton.setFont(new Font("Arial", 24));
-        previewButton.setOnAction(e -> showPreviewScene());
+        Button level2Button = new Button("關卡 2");
+        level2Button.setFont(new Font("Arial", 24));
+        level2Button.setOnAction(e -> startGame("level2.txt"));
 
-        menuRoot.getChildren().addAll(title, playButton, previewButton);
+        menuRoot.getChildren().addAll(title, level1Button, level2Button);
 
         Scene menuScene = new Scene(menuRoot, WIDTH, HEIGHT);
         primaryStage.setScene(menuScene);
         primaryStage.show();
     }
 
-    private void showGameScene() {
-        GameScene game = new GameScene(this);
+    public void startGame(String levelFile) {
+        GameScene game = new GameScene(this, levelFile);
         Scene gameScene = new Scene(game, WIDTH, HEIGHT);
 
         gameScene.setOnKeyPressed(event -> game.handleInput(event.getCode()));

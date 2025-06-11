@@ -1,17 +1,19 @@
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 // import javafx.geometry.Rectangle2D;
 
-public class Dino {
-    public static final int DINO_WIDTH = 40;
-    public static final int DINO_HEIGHT = 60;
+public class Dino extends Player {
+    public static final int DINO_WIDTH = PLAYER_WIDTH;
+    public static final int DINO_HEIGHT = PLAYER_HEIGHT;
     private static final int JUMP_STRENGTH = -18;
     private static final double GRAVITY = 1.5;
 
-    private double y = MainApplication.getHEIGHT() - 50 - DINO_HEIGHT;
-    private double x = 50;
-    private double yVelocity = 0;
-    public boolean isJumping = false;
+    private Image dinoImage;
+
+    public Dino() {
+        this.dinoImage = new Image("file:./picture/dino.png", DINO_WIDTH, DINO_HEIGHT, false, false);
+    }
 
     public void jump() {
         if (!isJumping) {
@@ -20,6 +22,7 @@ public class Dino {
         }
     }
 
+    @Override
     public void update() {
         y += yVelocity;
         yVelocity += GRAVITY;
@@ -34,36 +37,8 @@ public class Dino {
         }
     }
 
+    @Override
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.GREEN);
-        gc.fillRect(x, y, DINO_WIDTH, DINO_HEIGHT);
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public double getYVelocity() {
-        return yVelocity;
-    }
-
-    public void setYVelocity(double yVelocity) {
-        this.yVelocity = yVelocity;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public boolean isJumping() {
-        return isJumping;
-    }
-
-    public void setJumping(boolean jumping) {
-        isJumping = jumping;
+        gc.drawImage(dinoImage, x, y);
     }
 }
