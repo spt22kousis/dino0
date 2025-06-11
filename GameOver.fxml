@@ -11,7 +11,7 @@
       alignment="CENTER"
       spacing="20"
       style="-fx-background-color: LIGHTGRAY;"
-      prefWidth="800" prefHeight="300">
+      prefWidth="800" prefHeight="600">
     
     <Label text="遊戲結束" style="-fx-text-fill: BLACK; -fx-font-size: 48px;"/>
     <Label fx:id="scoreLabel" text="最終分數: 0" style="-fx-text-fill: BLACK; -fx-font-size: 20px;"/>
