@@ -3,6 +3,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -39,6 +40,8 @@ public class GameScene extends Pane {
     private AnimationTimer gameTimer;
     // 與主執行程式連結
     private MainApplication app;
+    // 背景圖片
+    private Background background;
 
     public GameScene(MainApplication app) {
         this.app = app;
@@ -53,6 +56,10 @@ public class GameScene extends Pane {
         // 注意：到畫面真正顯示前（Stage.show()）這個 requestFocus 有時候還無效，
         // 但可以先呼叫一次。真正顯示後 GameScene 才能拿到焦點。
         requestFocus();
+
+        // 初始化背景
+        background = new Background("./picture/bg.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+
         dino = new Dino();
         loadLevel("level1.txt");
     }
@@ -177,6 +184,7 @@ public class GameScene extends Pane {
     private void updateGame(long now) {
         dino.update();
         gameWorldDistance += Obstacle.OBSTACLE_SPEED;
+        background.update(gameWorldDistance);
 
         if (levelModeActive) {
             while (currentSequenceIndex < levelSequence.size()) {
@@ -243,9 +251,10 @@ public class GameScene extends Pane {
     }
 
     private void renderGame() {
-        gc.setFill(Color.LIGHTGRAY);
-        gc.fillRect(0, 0, MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+        // 繪製背景
+        background.render(gc);
 
+        // 繪製地面
         gc.setFill(Color.DARKGRAY);
         gc.fillRect(0, GROUND_Y, MainApplication.getWIDTH(), MainApplication.getHEIGHT() - GROUND_Y);
 
@@ -336,6 +345,7 @@ public class GameScene extends Pane {
         allLevelObstaclesSpawned = false;
         gameWorldDistance = 0;
         finalLevelDistance = 0;
+        background.reset();
         loadLevel("level1.txt");
         this.getChildren().clear();
         Canvas canvas = new Canvas(MainApplication.getWIDTH(), MainApplication.getHEIGHT());
