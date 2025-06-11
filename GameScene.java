@@ -18,13 +18,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+enum GameMode {
+    DINO,
+    WAVE
+}
 // import java.util.Random;
 
 public class GameScene extends Pane {
 
     private static final int GROUND_Y = MainApplication.getHEIGHT() - 50;
 
-    private Dino dino;
+    private Player player;
+    private GameMode gameMode = GameMode.DINO; // Default game mode
     private List<Obstacle> obstacles = new ArrayList<>();
     // private Random random = new Random();
     private long score = 0;
@@ -61,6 +67,7 @@ public class GameScene extends Pane {
         // 2. 讓 GameScene 這個 Pane 可以拿到鍵盤 focus，並在按鍵時呼叫 handleInput
         setFocusTraversable(true);
         setOnKeyPressed(evt -> handleInput(evt.getCode()));
+        setOnKeyReleased(evt -> handleKeyReleased(evt.getCode()));
         // 注意：到畫面真正顯示前（Stage.show()）這個 requestFocus 有時候還無效，
         // 但可以先呼叫一次。真正顯示後 GameScene 才能拿到焦點。
         requestFocus();
@@ -71,7 +78,8 @@ public class GameScene extends Pane {
         // 載入爆炸圖片
         explosionImage = new Image("file:./picture/explosion.png");
 
-        dino = new Dino();
+        // Initialize player based on game mode
+        createPlayer();
         loadLevel("level1.txt");
     }
 
@@ -113,8 +121,51 @@ public class GameScene extends Pane {
         }
     }
 
+    // Create player based on game mode
+    private void createPlayer() {
+        if (gameMode == GameMode.DINO) {
+            player = new Dino();
+        } else if (gameMode == GameMode.WAVE) {
+            player = new Wave();
+        }
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    // For backward compatibility
     public Dino getDino() {
-        return dino;
+        if (player instanceof Dino) {
+            return (Dino) player;
+        }
+        return null;
+    }
+
+    // Set game mode and create appropriate player
+    public void setGameMode(GameMode mode) {
+        this.gameMode = mode;
+        createPlayer();
+    }
+
+    // Switch game mode without resetting the game
+    private void switchGameModeWithoutReset() {
+        // Save current player position
+        double currentX = player.getX();
+        double currentY = player.getY();
+
+        // Toggle game mode
+        if (gameMode == GameMode.DINO) {
+            gameMode = GameMode.WAVE;
+        } else {
+            gameMode = GameMode.DINO;
+        }
+
+        // Create new player of the appropriate type
+        createPlayer();
+
+        // Restore player position
+        player.setY(currentY);
     }
 
     public boolean isGameOver() {
@@ -127,17 +178,47 @@ public class GameScene extends Pane {
 
     // 偵測鍵盤輸入
     public void handleInput(KeyCode code) {
-        if (code == KeyCode.SPACE || code == KeyCode.UP) {
-            if (!gameOver && !levelComplete) {
-                dino.jump();
+        if (!gameOver && !levelComplete) {
+            if (code == KeyCode.SPACE || code == KeyCode.UP) {
+                if (gameMode == GameMode.DINO && player instanceof Dino) {
+                    ((Dino) player).jump();
+                } else if (gameMode == GameMode.WAVE && player instanceof Wave) {
+                    ((Wave) player).setUpKeyPressed(true);
+                }
+            } else if (code == KeyCode.DOWN) {
+                if (gameMode == GameMode.WAVE && player instanceof Wave) {
+                    ((Wave) player).setUpKeyPressed(false);
+                }
             }
         }
+
         if (code == KeyCode.R && (gameOver || levelComplete)) {
             resetGame();
         }
         if (code == KeyCode.M) {
             stopGameLoop();
             app.showStartMenu();
+        }
+        if (code == KeyCode.X && !gameOver && !levelComplete) {
+            // Toggle between Dino and Wave modes without resetting the game
+            switchGameModeWithoutReset();
+        }
+        if (code == KeyCode.D && !gameOver && !levelComplete) {
+            setGameMode(GameMode.DINO);
+            resetGame();
+        }
+        if (code == KeyCode.W && !gameOver && !levelComplete) {
+            setGameMode(GameMode.WAVE);
+            resetGame();
+        }
+    }
+
+    // Key release handler for Wave mode
+    public void handleKeyReleased(KeyCode code) {
+        if (gameMode == GameMode.WAVE && player instanceof Wave) {
+            if (code == KeyCode.SPACE || code == KeyCode.UP) {
+                ((Wave) player).setUpKeyPressed(false);
+            }
         }
     }
 
@@ -205,7 +286,7 @@ public class GameScene extends Pane {
 
     private void updateGame(long now) {
         if (!dying) {
-            dino.update();
+            player.update();
             gameWorldDistance += Obstacle.OBSTACLE_SPEED;
             background.update(gameWorldDistance);
         }
@@ -265,7 +346,7 @@ public class GameScene extends Pane {
         }
 
         for (Obstacle obstacle : obstacles) {
-            if (obstacle.getColide(dino)) {
+            if (obstacle.getColide(player)) {
                 if (!dying) {
                     dying = true;
                     deathAnimationStartTime = now;
@@ -289,9 +370,9 @@ public class GameScene extends Pane {
         gc.setFill(Color.DARKGRAY);
         gc.fillRect(0, GROUND_Y, MainApplication.getWIDTH(), MainApplication.getHEIGHT() - GROUND_Y);
 
-        // 只有在非死亡狀態才繪製恐龍
+        // 只有在非死亡狀態才繪製玩家
         if (!dying) {
-            dino.render(gc);
+            player.render(gc);
         }
 
         for (Obstacle obstacle : obstacles) {
@@ -315,10 +396,10 @@ public class GameScene extends Pane {
         if (explosionView == null) {
             // 第一次呼叫時，創建爆炸效果
             explosionView = new ImageView(explosionImage);
-            explosionView.setFitWidth(Dino.DINO_WIDTH * 1.5);
-            explosionView.setFitHeight(Dino.DINO_HEIGHT * 1.5);
-            explosionView.setX(dino.getX() - (explosionView.getFitWidth() - Dino.DINO_WIDTH) / 2);
-            explosionView.setY(dino.getY() - (explosionView.getFitHeight() - Dino.DINO_HEIGHT) / 2);
+            explosionView.setFitWidth(Player.PLAYER_WIDTH * 1.5);
+            explosionView.setFitHeight(Player.PLAYER_HEIGHT * 1.5);
+            explosionView.setX(player.getX() - (explosionView.getFitWidth() - Player.PLAYER_WIDTH) / 2);
+            explosionView.setY(player.getY() - (explosionView.getFitHeight() - Player.PLAYER_HEIGHT) / 2);
 
             // 添加爆炸圖片到場景
             this.getChildren().add(explosionView);
@@ -391,7 +472,7 @@ public class GameScene extends Pane {
     }
 
     private void resetGame() {
-        dino = new Dino();
+        createPlayer();
         obstacles.clear();
         score = 0;
         gameOver = false;
