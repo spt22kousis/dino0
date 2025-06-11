@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="300" prefWidth="800" spacing="20" style="-fx-background-color: LIGHTGRAY;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="LevelCompleteController">
+<VBox alignment="CENTER" prefHeight="600" prefWidth="800" spacing="20" style="-fx-background-color: LIGHTGRAY;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="LevelCompleteController">
     
     <Label style="-fx-text-fill: BLUE; -fx-font-size: 48px;" text="關卡完成！" />
     <Label fx:id="scoreLabel" style="-fx-text-fill: BLACK; -fx-font-size: 20px;" text="最終分數: 0" />

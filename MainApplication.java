@@ -10,7 +10,7 @@ import javafx.geometry.Pos;
 public class MainApplication extends Application {
 
     private static final int WIDTH = 800;
-    private static final int HEIGHT = 300;
+    private static final int HEIGHT = 600;
 
     private Stage primaryStage;
 
