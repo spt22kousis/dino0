@@ -77,8 +77,10 @@ public class PreviewScene extends Pane {
         try (InputStream is = getClass().getResourceAsStream(levelFilePath);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
 
-            String line;
-            reader.readLine();
+            String line, songpath;
+            // 載入音樂
+            songpath = reader.readLine();
+            BgmPlayer.init(songpath);
             while ((line = reader.readLine()) != null) {
                 if (line.trim().startsWith("#") || line.trim().isEmpty()) {
                     continue;

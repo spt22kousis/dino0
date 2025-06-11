@@ -35,7 +35,9 @@ public class GameScene extends Pane {
     private boolean allLevelObstaclesSpawned = false;
 
     private GraphicsContext gc;
+    // 控制遊戲迴圈的執行續
     private AnimationTimer gameTimer;
+    // 與主執行程式連結
     private MainApplication app;
 
     public GameScene(MainApplication app) {
