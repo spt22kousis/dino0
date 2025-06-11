@@ -1,12 +1,16 @@
 import javafx.animation.AnimationTimer;
+import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,6 +29,11 @@ public class GameScene extends Pane {
     // private Random random = new Random();
     private long score = 0;
     private boolean gameOver = false;
+    private boolean dying = false;
+    private long deathAnimationStartTime = 0;
+    private static final long DEATH_ANIMATION_DURATION = 500_000_000; // 0.5 seconds in nanoseconds
+    private Image explosionImage;
+    private ImageView explosionView;
     private boolean levelComplete = false;
 
     private List<LevelObstacleData> levelSequence = new ArrayList<>();
@@ -39,6 +48,8 @@ public class GameScene extends Pane {
     private AnimationTimer gameTimer;
     // 與主執行程式連結
     private MainApplication app;
+    // 背景圖片
+    private Background background;
 
     public GameScene(MainApplication app) {
         this.app = app;
@@ -53,6 +64,13 @@ public class GameScene extends Pane {
         // 注意：到畫面真正顯示前（Stage.show()）這個 requestFocus 有時候還無效，
         // 但可以先呼叫一次。真正顯示後 GameScene 才能拿到焦點。
         requestFocus();
+
+        // 初始化背景
+        background = new Background("./picture/bg.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+
+        // 載入爆炸圖片
+        explosionImage = new Image("file:./picture/explosion.png");
+
         dino = new Dino();
         loadLevel("level1.txt");
     }
@@ -63,8 +81,19 @@ public class GameScene extends Pane {
             public void handle(long now) {
                 // 不管要不要顯示「遊戲結束/通關畫面」，都先繪製一次遊戲畫面或結算畫面
                 if (!gameOver && !levelComplete) {
-                    updateGame(now);
-                    renderGame();
+                    if (dying) {
+                        // 處理死亡動畫
+                        renderGame();
+                        renderDeathAnimation(now);
+
+                        // 檢查死亡動畫是否完成
+                        if (now - deathAnimationStartTime >= DEATH_ANIMATION_DURATION) {
+                            gameOver = true;
+                        }
+                    } else {
+                        updateGame(now);
+                        renderGame();
+                    }
                 } else if (gameOver) {
                     renderGameOver();
                     stopGameLoop();
@@ -175,8 +204,11 @@ public class GameScene extends Pane {
     }
 
     private void updateGame(long now) {
-        dino.update();
-        gameWorldDistance += Obstacle.OBSTACLE_SPEED;
+        if (!dying) {
+            dino.update();
+            gameWorldDistance += Obstacle.OBSTACLE_SPEED;
+            background.update(gameWorldDistance);
+        }
 
         if (levelModeActive) {
             while (currentSequenceIndex < levelSequence.size()) {
@@ -220,10 +252,12 @@ public class GameScene extends Pane {
             System.exit(-1);
         }
 
-        obstacles.removeIf(obstacle -> {
-            obstacle.update();
-            return obstacle.isOffScreen();
-        });
+        if (!dying) {
+            obstacles.removeIf(obstacle -> {
+                obstacle.update();
+                return obstacle.isOffScreen();
+            });
+        }
 
         if (allLevelObstaclesSpawned && obstacles.isEmpty()) {
             levelComplete = true;
@@ -232,7 +266,12 @@ public class GameScene extends Pane {
 
         for (Obstacle obstacle : obstacles) {
             if (obstacle.getColide(dino)) {
-                gameOver = true;
+                if (!dying) {
+                    dying = true;
+                    deathAnimationStartTime = now;
+                    // 清除爆炸視圖，以便在renderDeathAnimation中重新創建
+                    explosionView = null;
+                }
                 break;
             }
         }
@@ -243,13 +282,17 @@ public class GameScene extends Pane {
     }
 
     private void renderGame() {
-        gc.setFill(Color.LIGHTGRAY);
-        gc.fillRect(0, 0, MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+        // 繪製背景
+        background.render(gc);
 
+        // 繪製地面
         gc.setFill(Color.DARKGRAY);
         gc.fillRect(0, GROUND_Y, MainApplication.getWIDTH(), MainApplication.getHEIGHT() - GROUND_Y);
 
-        dino.render(gc);
+        // 只有在非死亡狀態才繪製恐龍
+        if (!dying) {
+            dino.render(gc);
+        }
 
         for (Obstacle obstacle : obstacles) {
             obstacle.render(gc);
@@ -265,6 +308,26 @@ public class GameScene extends Pane {
                 completionPercentage = 100;
             String completionText = String.format("進度: %.1f%%", completionPercentage);
             gc.fillText(completionText, MainApplication.getWIDTH() - 120, 30);
+        }
+    }
+
+    private void renderDeathAnimation(long now) {
+        if (explosionView == null) {
+            // 第一次呼叫時，創建爆炸效果
+            explosionView = new ImageView(explosionImage);
+            explosionView.setFitWidth(Dino.DINO_WIDTH * 1.5);
+            explosionView.setFitHeight(Dino.DINO_HEIGHT * 1.5);
+            explosionView.setX(dino.getX() - (explosionView.getFitWidth() - Dino.DINO_WIDTH) / 2);
+            explosionView.setY(dino.getY() - (explosionView.getFitHeight() - Dino.DINO_HEIGHT) / 2);
+
+            // 添加爆炸圖片到場景
+            this.getChildren().add(explosionView);
+
+            // 創建淡出動畫
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(500), explosionView);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.play();
         }
     }
 
@@ -332,10 +395,13 @@ public class GameScene extends Pane {
         obstacles.clear();
         score = 0;
         gameOver = false;
+        dying = false;
+        explosionView = null;
         levelComplete = false;
         allLevelObstaclesSpawned = false;
         gameWorldDistance = 0;
         finalLevelDistance = 0;
+        background.reset();
         loadLevel("level1.txt");
         this.getChildren().clear();
         Canvas canvas = new Canvas(MainApplication.getWIDTH(), MainApplication.getHEIGHT());
