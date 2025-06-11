@@ -15,7 +15,7 @@ public class RegularObstacle extends Obstacle {
     // }
 
     public RegularObstacle(double width, double height, double yPosition) {
-        super(width, height, yPosition, ".//picture/regular.png");
+        super(width, height, yPosition, ".//picture/regular.jpg");
     }
 
     @Override
