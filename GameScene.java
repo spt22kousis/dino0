@@ -48,6 +48,7 @@ public class GameScene extends Pane {
     private double finalLevelDistance = 0;
     private boolean levelModeActive = true;
     private boolean allLevelObstaclesSpawned = false;
+    private String currentLevelFile = "level1.txt"; // Default level file
 
     private GraphicsContext gc;
     // 控制遊戲迴圈的執行續
@@ -57,7 +58,7 @@ public class GameScene extends Pane {
     // 背景圖片
     private Background background;
 
-    public GameScene(MainApplication app) {
+    public GameScene(MainApplication app, String levelFile) {
         this.app = app;
         setPrefSize(MainApplication.getWIDTH(), MainApplication.getHEIGHT());
 
@@ -80,7 +81,7 @@ public class GameScene extends Pane {
 
         // Initialize player based on game mode
         createPlayer();
-        loadLevel("level1.txt");
+        loadLevel(levelFile);
     }
 
     public void startGameLoop() {
@@ -148,25 +149,6 @@ public class GameScene extends Pane {
         createPlayer();
     }
 
-    // Switch game mode without resetting the game
-    private void switchGameModeWithoutReset() {
-        // Save current player position
-        double currentX = player.getX();
-        double currentY = player.getY();
-
-        // Toggle game mode
-        if (gameMode == GameMode.DINO) {
-            gameMode = GameMode.WAVE;
-        } else {
-            gameMode = GameMode.DINO;
-        }
-
-        // Create new player of the appropriate type
-        createPlayer();
-
-        // Restore player position
-        player.setY(currentY);
-    }
 
     public boolean isGameOver() {
         return gameOver;
@@ -199,18 +181,6 @@ public class GameScene extends Pane {
             stopGameLoop();
             app.showStartMenu();
         }
-        if (code == KeyCode.X && !gameOver && !levelComplete) {
-            // Toggle between Dino and Wave modes without resetting the game
-            switchGameModeWithoutReset();
-        }
-        if (code == KeyCode.D && !gameOver && !levelComplete) {
-            setGameMode(GameMode.DINO);
-            resetGame();
-        }
-        if (code == KeyCode.W && !gameOver && !levelComplete) {
-            setGameMode(GameMode.WAVE);
-            resetGame();
-        }
     }
 
     // Key release handler for Wave mode
@@ -230,6 +200,16 @@ public class GameScene extends Pane {
         allLevelObstaclesSpawned = false;
         levelComplete = false;
         finalLevelDistance = 0;
+
+        // Store the current level file
+        currentLevelFile = levelFilePath;
+
+        // Set game mode based on level file
+        if (levelFilePath.equals("level1.txt")) {
+            setGameMode(GameMode.DINO);
+        } else if (levelFilePath.equals("level2.txt")) {
+            setGameMode(GameMode.WAVE);
+        }
 
         try (InputStream is = getClass().getResourceAsStream(levelFilePath);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
@@ -483,7 +463,7 @@ public class GameScene extends Pane {
         gameWorldDistance = 0;
         finalLevelDistance = 0;
         background.reset();
-        loadLevel("level1.txt");
+        loadLevel(currentLevelFile);
         this.getChildren().clear();
         Canvas canvas = new Canvas(MainApplication.getWIDTH(), MainApplication.getHEIGHT());
         gc = canvas.getGraphicsContext2D();

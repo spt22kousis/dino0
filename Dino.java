@@ -1,4 +1,5 @@
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 // import javafx.geometry.Rectangle2D;
 
@@ -7,6 +8,12 @@ public class Dino extends Player {
     public static final int DINO_HEIGHT = PLAYER_HEIGHT;
     private static final int JUMP_STRENGTH = -18;
     private static final double GRAVITY = 1.5;
+
+    private Image dinoImage;
+
+    public Dino() {
+        this.dinoImage = new Image("file:./picture/dino.png", DINO_WIDTH, DINO_HEIGHT, false, false);
+    }
 
     public void jump() {
         if (!isJumping) {
@@ -32,7 +39,6 @@ public class Dino extends Player {
 
     @Override
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.GREEN);
-        gc.fillRect(x, y, DINO_WIDTH, DINO_HEIGHT);
+        gc.drawImage(dinoImage, x, y);
     }
 }
