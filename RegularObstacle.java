@@ -14,8 +14,14 @@ public class RegularObstacle extends Obstacle {
     // this.color = Color.BROWN;
     // }
 
+    private static boolean isLevel2 = false;
+
+    public static void setIsLevel2(boolean level2) {
+        isLevel2 = level2;
+    }
+
     public RegularObstacle(double width, double height, double yPosition) {
-        super(width, height, yPosition, ".//picture/regular.jpg");
+        super(width, height, yPosition, isLevel2 ? ".//picture/regular2.jpg" : ".//picture/regular.jpg");
     }
 
     @Override

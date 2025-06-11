@@ -6,6 +6,7 @@ public class PlatformObstacle extends Obstacle {
 
     private boolean prev = false;
     private boolean colide = false;
+    private static boolean isLevel2 = false;
 
     // public PlatformObstacle() {
     // super();
@@ -18,8 +19,12 @@ public class PlatformObstacle extends Obstacle {
     // this.color = Color.ORANGE;
     // }
 
+    public static void setIsLevel2(boolean level2) {
+        isLevel2 = level2;
+    }
+
     public PlatformObstacle(double width, double height, double yPosition) {
-        super(width, height, yPosition, ".//picture/platform.png");
+        super(width, height, yPosition, isLevel2 ? ".//picture/platform2.png" : ".//picture/platform.png");
     }
 
     @Override

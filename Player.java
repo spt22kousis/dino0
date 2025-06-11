@@ -33,9 +33,7 @@ public abstract class Player {
         return x;
     }
     
-    public boolean isJumping() {
-        return isJumping;
-    }
+    // public boolean isJumping() { return isJumping; }
     
     public void setJumping(boolean jumping) {
         isJumping = jumping;

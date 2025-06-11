@@ -73,15 +73,19 @@ public class GameScene extends Pane {
         // 但可以先呼叫一次。真正顯示後 GameScene 才能拿到焦點。
         requestFocus();
 
-        // 初始化背景
-        background = new Background("./picture/bg.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
-
         // 載入爆炸圖片
         explosionImage = new Image("file:./picture/explosion.png");
 
         // Initialize player based on game mode
         createPlayer();
         loadLevel(levelFile);
+
+        // 初始化背景 - 根據關卡選擇不同背景
+        if (levelFile.equals("level2.txt")) {
+            background = new Background("./picture/bg2.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+        } else {
+            background = new Background("./picture/bg.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+        }
     }
 
     public void startGameLoop() {
@@ -149,7 +153,6 @@ public class GameScene extends Pane {
         createPlayer();
     }
 
-
     public boolean isGameOver() {
         return gameOver;
     }
@@ -205,10 +208,15 @@ public class GameScene extends Pane {
         currentLevelFile = levelFilePath;
 
         // Set game mode based on level file
+        boolean isLevel2 = levelFilePath.equals("level2.txt");
         if (levelFilePath.equals("level1.txt")) {
             setGameMode(GameMode.DINO);
-        } else if (levelFilePath.equals("level2.txt")) {
+            PlatformObstacle.setIsLevel2(false);
+            RegularObstacle.setIsLevel2(false);
+        } else if (isLevel2) {
             setGameMode(GameMode.WAVE);
+            PlatformObstacle.setIsLevel2(true);
+            RegularObstacle.setIsLevel2(true);
         }
 
         try (InputStream is = getClass().getResourceAsStream(levelFilePath);
@@ -233,7 +241,7 @@ public class GameScene extends Pane {
                         double yPosition = Double.parseDouble(parts[3].trim());
                         String type = parts[4].trim().toLowerCase();
 
-                        if (!type.equals("regular") && !type.equals("platform")) {
+                        if (!type.equals("regular") && !type.equals("platform") && !type.equals("lemon")) {
                             System.err.println("關卡檔案中未知障礙物類型 '" + type + "'，行：" + line + "。預設為 'regular'。");
                             type = "regular";
                         }
@@ -278,8 +286,10 @@ public class GameScene extends Pane {
                     Obstacle newObstacle;
                     if (data.type.equals("platform")) {
                         newObstacle = new PlatformObstacle(data.width, data.height, data.yPosition);
-                    } else {
+                    } else if (data.type.equals("regular")) {
                         newObstacle = new RegularObstacle(data.width, data.height, data.yPosition);
+                    } else {
+                        newObstacle = new LemonObstacle(data.width, data.height, data.yPosition);
                     }
                     obstacles.add(newObstacle);
                     currentSequenceIndex++;
