@@ -32,7 +32,7 @@ public class LemonObstacle extends Obstacle {
 
     @Override
     public void render(GraphicsContext gc) {
-        if (this.timer == 0) {
+        if (this.timer <= 0) {
             gc.drawImage(image, x, y);
         } else {
             gc.setStroke(Color.BLUE); // 設定線條顏色
@@ -48,6 +48,14 @@ public class LemonObstacle extends Obstacle {
     @Override
     public void render(GraphicsContext gc, double cameraY) {
         gc.drawImage(image, x, y - cameraY);
+    }
+
+    @Override
+    public boolean isOffScreen() {
+        if (timer < -10) {
+            return true;
+        }
+        return false;
     }
 
     /**
