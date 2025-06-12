@@ -1,13 +1,18 @@
+package com.dino;
+
 import javafx.animation.AnimationTimer;
+import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,17 +20,26 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-// import java.util.Random;
+
+enum GameMode {
+    DINO,
+    WAVE
+}
 
 public class GameScene extends Pane {
 
     private static final int GROUND_Y = MainApplication.getHEIGHT() - 50;
 
-    private Dino dino;
+    private Player player;
+    private GameMode gameMode = GameMode.DINO; // Default game mode
     private List<Obstacle> obstacles = new ArrayList<>();
-    // private Random random = new Random();
     private long score = 0;
     private boolean gameOver = false;
+    private boolean dying = false;
+    private long deathAnimationStartTime = 0;
+    private static final long DEATH_ANIMATION_DURATION = 500_000_000; // 0.5 seconds in nanoseconds
+    private Image explosionImage;
+    private ImageView explosionView;
     private boolean levelComplete = false;
 
     private List<LevelObstacleData> levelSequence = new ArrayList<>();
@@ -34,6 +48,7 @@ public class GameScene extends Pane {
     private double finalLevelDistance = 0;
     private boolean levelModeActive = true;
     private boolean allLevelObstaclesSpawned = false;
+    private String currentLevelFile = "/level1.txt"; // Default level file
 
     private GraphicsContext gc;
     // 控制遊戲迴圈的執行續
@@ -43,7 +58,7 @@ public class GameScene extends Pane {
     // 背景圖片
     private Background background;
 
-    public GameScene(MainApplication app) {
+    public GameScene(MainApplication app, String levelFile) {
         this.app = app;
         setPrefSize(MainApplication.getWIDTH(), MainApplication.getHEIGHT());
 
@@ -53,15 +68,24 @@ public class GameScene extends Pane {
         // 2. 讓 GameScene 這個 Pane 可以拿到鍵盤 focus，並在按鍵時呼叫 handleInput
         setFocusTraversable(true);
         setOnKeyPressed(evt -> handleInput(evt.getCode()));
+        setOnKeyReleased(evt -> handleKeyReleased(evt.getCode()));
         // 注意：到畫面真正顯示前（Stage.show()）這個 requestFocus 有時候還無效，
         // 但可以先呼叫一次。真正顯示後 GameScene 才能拿到焦點。
         requestFocus();
 
-        // 初始化背景
-        background = new Background("./picture/bg.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+        // 載入爆炸圖片
+        explosionImage = new Image(getClass().getResourceAsStream("/picture/explosion.png"));
 
-        dino = new Dino();
-        loadLevel("level1.txt");
+        // Initialize player based on game mode
+        createPlayer();
+        loadLevel(levelFile);
+
+        // 初始化背景 - 根據關卡選擇不同背景
+        if (levelFile.equals("/level2.txt")) {
+            background = new Background("/picture/bg2.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+        } else {
+            background = new Background("/picture/bg.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+        }
     }
 
     public void startGameLoop() {
@@ -70,8 +94,19 @@ public class GameScene extends Pane {
             public void handle(long now) {
                 // 不管要不要顯示「遊戲結束/通關畫面」，都先繪製一次遊戲畫面或結算畫面
                 if (!gameOver && !levelComplete) {
-                    updateGame(now);
-                    renderGame();
+                    if (dying) {
+                        // 處理死亡動畫
+                        renderGame();
+                        renderDeathAnimation(now);
+
+                        // 檢查死亡動畫是否完成
+                        if (now - deathAnimationStartTime >= DEATH_ANIMATION_DURATION) {
+                            gameOver = true;
+                        }
+                    } else {
+                        updateGame(now);
+                        renderGame();
+                    }
                 } else if (gameOver) {
                     renderGameOver();
                     stopGameLoop();
@@ -91,8 +126,31 @@ public class GameScene extends Pane {
         }
     }
 
+    // Create player based on game mode
+    private void createPlayer() {
+        if (gameMode == GameMode.DINO) {
+            player = new Dino();
+        } else if (gameMode == GameMode.WAVE) {
+            player = new Wave();
+        }
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    // For backward compatibility
     public Dino getDino() {
-        return dino;
+        if (player instanceof Dino) {
+            return (Dino) player;
+        }
+        return null;
+    }
+
+    // Set game mode and create appropriate player
+    public void setGameMode(GameMode mode) {
+        this.gameMode = mode;
+        createPlayer();
     }
 
     public boolean isGameOver() {
@@ -105,17 +163,35 @@ public class GameScene extends Pane {
 
     // 偵測鍵盤輸入
     public void handleInput(KeyCode code) {
-        if (code == KeyCode.SPACE || code == KeyCode.UP) {
-            if (!gameOver && !levelComplete) {
-                dino.jump();
+        if (!gameOver && !levelComplete) {
+            if (code == KeyCode.SPACE || code == KeyCode.UP) {
+                if (gameMode == GameMode.DINO && player instanceof Dino) {
+                    ((Dino) player).jump();
+                } else if (gameMode == GameMode.WAVE && player instanceof Wave) {
+                    ((Wave) player).setUpKeyPressed(true);
+                }
+            } else if (code == KeyCode.DOWN) {
+                if (gameMode == GameMode.WAVE && player instanceof Wave) {
+                    ((Wave) player).setUpKeyPressed(false);
+                }
             }
         }
+
         if (code == KeyCode.R && (gameOver || levelComplete)) {
             resetGame();
         }
         if (code == KeyCode.M) {
             stopGameLoop();
             app.showStartMenu();
+        }
+    }
+
+    // Key release handler for Wave mode
+    public void handleKeyReleased(KeyCode code) {
+        if (gameMode == GameMode.WAVE && player instanceof Wave) {
+            if (code == KeyCode.SPACE || code == KeyCode.UP) {
+                ((Wave) player).setUpKeyPressed(false);
+            }
         }
     }
 
@@ -127,6 +203,16 @@ public class GameScene extends Pane {
         allLevelObstaclesSpawned = false;
         levelComplete = false;
         finalLevelDistance = 0;
+
+        // Store the current level file
+        currentLevelFile = levelFilePath;
+
+        // Set game mode based on level file
+        if (levelFilePath.equals("/level1.txt")) {
+            setGameMode(GameMode.DINO);
+        } else if (levelFilePath.equals("/level2.txt")) {
+            setGameMode(GameMode.WAVE);
+        }
 
         try (InputStream is = getClass().getResourceAsStream(levelFilePath);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
@@ -150,7 +236,7 @@ public class GameScene extends Pane {
                         double yPosition = Double.parseDouble(parts[3].trim());
                         String type = parts[4].trim().toLowerCase();
 
-                        if (!type.equals("regular") && !type.equals("platform")) {
+                        if (!type.equals("regular") && !type.equals("platform") && !type.equals("lemon")) {
                             System.err.println("關卡檔案中未知障礙物類型 '" + type + "'，行：" + line + "。預設為 'regular'。");
                             type = "regular";
                         }
@@ -182,9 +268,11 @@ public class GameScene extends Pane {
     }
 
     private void updateGame(long now) {
-        dino.update();
-        gameWorldDistance += Obstacle.OBSTACLE_SPEED;
-        background.update(gameWorldDistance);
+        if (!dying) {
+            player.update();
+            gameWorldDistance += Obstacle.OBSTACLE_SPEED;
+            background.update(gameWorldDistance);
+        }
 
         if (levelModeActive) {
             while (currentSequenceIndex < levelSequence.size()) {
@@ -193,8 +281,10 @@ public class GameScene extends Pane {
                     Obstacle newObstacle;
                     if (data.type.equals("platform")) {
                         newObstacle = new PlatformObstacle(data.width, data.height, data.yPosition);
-                    } else {
+                    } else if (data.type.equals("regular")) {
                         newObstacle = new RegularObstacle(data.width, data.height, data.yPosition);
+                    } else {
+                        newObstacle = new LemonObstacle(data.width, data.height, data.yPosition);
                     }
                     obstacles.add(newObstacle);
                     currentSequenceIndex++;
@@ -218,20 +308,15 @@ public class GameScene extends Pane {
                 }
             }
         } else if (!allLevelObstaclesSpawned) {
-            // if (obstacles.isEmpty()
-            // || (now - (obstacles.get(obstacles.size() - 1).getSpawnTime())) > (1500 +
-            // random.nextInt(1000))
-            // * 1_000_000L) {
-            // RegularObstacle newRandomObstacle = new RegularObstacle();
-            // obstacles.add(newRandomObstacle);
-            // }
             System.exit(-1);
         }
 
-        obstacles.removeIf(obstacle -> {
-            obstacle.update();
-            return obstacle.isOffScreen();
-        });
+        if (!dying) {
+            obstacles.removeIf(obstacle -> {
+                obstacle.update();
+                return obstacle.isOffScreen();
+            });
+        }
 
         if (allLevelObstaclesSpawned && obstacles.isEmpty()) {
             levelComplete = true;
@@ -239,8 +324,13 @@ public class GameScene extends Pane {
         }
 
         for (Obstacle obstacle : obstacles) {
-            if (obstacle.getColide(dino)) {
-                gameOver = true;
+            if (obstacle.getColide(player)) {
+                if (!dying) {
+                    dying = true;
+                    deathAnimationStartTime = now;
+                    // 清除爆炸視圖，以便在renderDeathAnimation中重新創建
+                    explosionView = null;
+                }
                 break;
             }
         }
@@ -258,7 +348,10 @@ public class GameScene extends Pane {
         gc.setFill(Color.DARKGRAY);
         gc.fillRect(0, GROUND_Y, MainApplication.getWIDTH(), MainApplication.getHEIGHT() - GROUND_Y);
 
-        dino.render(gc);
+        // 只有在非死亡狀態才繪製玩家
+        if (!dying) {
+            player.render(gc);
+        }
 
         for (Obstacle obstacle : obstacles) {
             obstacle.render(gc);
@@ -277,13 +370,33 @@ public class GameScene extends Pane {
         }
     }
 
+    private void renderDeathAnimation(long now) {
+        if (explosionView == null) {
+            // 第一次呼叫時，創建爆炸效果
+            explosionView = new ImageView(explosionImage);
+            explosionView.setFitWidth(Player.PLAYER_WIDTH * 1.5);
+            explosionView.setFitHeight(Player.PLAYER_HEIGHT * 1.5);
+            explosionView.setX(player.getX() - (explosionView.getFitWidth() - Player.PLAYER_WIDTH) / 2);
+            explosionView.setY(player.getY() - (explosionView.getFitHeight() - Player.PLAYER_HEIGHT) / 2);
+
+            // 添加爆炸圖片到場景
+            this.getChildren().add(explosionView);
+
+            // 創建淡出動畫
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(500), explosionView);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.play();
+        }
+    }
+
     private void renderGameOver() {
         // 1. 停止背景音樂
         BgmPlayer.getInstance().stop();
 
         // 2. 載入 GameOver.fxml
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("./GameOver.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/GameOver.fxml"));
             Parent gameOverRoot = loader.load();
 
             // 3. 取得 Controller，把分數與完成度傳進去
@@ -316,7 +429,7 @@ public class GameScene extends Pane {
 
         // 2. 載入 LevelComplete.fxml
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("./LevelComplete.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/LevelComplete.fxml"));
             Parent levelCompleteRoot = loader.load();
 
             // 3. 取得 Controller，把分數與完成度傳進去
@@ -337,16 +450,18 @@ public class GameScene extends Pane {
     }
 
     private void resetGame() {
-        dino = new Dino();
+        createPlayer();
         obstacles.clear();
         score = 0;
         gameOver = false;
+        dying = false;
+        explosionView = null;
         levelComplete = false;
         allLevelObstaclesSpawned = false;
         gameWorldDistance = 0;
         finalLevelDistance = 0;
         background.reset();
-        loadLevel("level1.txt");
+        loadLevel(currentLevelFile);
         this.getChildren().clear();
         Canvas canvas = new Canvas(MainApplication.getWIDTH(), MainApplication.getHEIGHT());
         gc = canvas.getGraphicsContext2D();

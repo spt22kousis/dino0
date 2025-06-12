@@ -1,24 +1,46 @@
-# 環境設定
-launch.json vmoption 改成：
-```
-"--module-path \"C:\\你的javafx模組的儲存位置\\javafx-sdk-21.0.7\\lib\" --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.media --add-opens=javafx.base/com.sun.javafx=ALL-UNNAMED"
-```
-位置改成javafx模組的儲存位置
+# 小恐龍幾何衝刺遊戲 (Dino Game)
 
-# 小恐龍幾何衝刺遊戲
+## 專案結構
+
+本專案現在使用 Maven 進行建構，遵循標準的 Maven 目錄結構：
+- `src/main/java/com/dino`: Java 源碼文件
+- `src/main/resources`: 資源文件（FXML、圖片、音樂、關卡文件）
 
 ## 運行程式依賴
 
 建議 Java 版本：21.0.4
 
-建議 JavaFX 版本：21.0.7
+建議 JavaFX 版本：21.0.7（由 Maven 自動管理）
+
+## 使用 Maven 建構與運行
+
+### 建構專案
+```
+mvn clean compile
+```
+
+### 運行專案
+```
+mvn javafx:run
+```
+
+### 打包專案
+```
+mvn clean package
+```
+打包後的 JAR 文件將在 `target` 目錄中生成。
 
 ## 玩法
 
-方向上：往上跳
+### 控制
+- **方向上**：跳躍（恐龍模式）或向上移動（波浪模式）
+- **R**：遊戲結束或關卡完成後重新開始
+- **M**：返回主選單
 
-撞到紅色會死
+### 遊戲規則
+- 撞到紅色會死
+- 但可以跳到黃色上面
 
-從側面或下面撞到黃色會死
-
-但可以跳到黃色上面
+## 遊戲模式
+1. **恐龍模式**：跳過障礙物
+2. **波浪模式**：上下移動避開障礙物
