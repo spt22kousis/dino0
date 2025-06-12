@@ -4,7 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 
 public abstract class Player {
     public static final int PLAYER_WIDTH = 40;
-    public static final int PLAYER_HEIGHT = 60;
+    public static final int PLAYER_HEIGHT = 40;
     
     protected double y = MainApplication.getHEIGHT() - 50 - PLAYER_HEIGHT;
     protected double x = 50;
