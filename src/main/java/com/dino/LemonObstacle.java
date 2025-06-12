@@ -20,7 +20,7 @@ public class LemonObstacle extends Obstacle {
     // }
 
     public LemonObstacle(double width, double height, double yPosition) {
-        super(width, height, yPosition, ".//picture/lemon.png");
+        super(width, height, yPosition, "/picture/lemon.png");
         this.timer = 150;
         this.x = 0;
     }
@@ -60,9 +60,8 @@ public class LemonObstacle extends Obstacle {
 
     /**
      * 改良後的碰撞/攻擊判定
-     * 
+     *
      * @param player  玩家
-     * @param cameraX 相機水平位移
      * @return 若在高亮結束後玩家仍在此區域則回傳 true
      */
     public boolean getColide(Player player) {

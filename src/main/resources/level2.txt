@@ -1,8 +1,4 @@
-<<<<<<< HEAD:level2.txt
-.//music/lemon.MP3
-=======
-/music/Unity.MP3
->>>>>>> e9e2157f7dc52a13dfe647cd32606ae8eda0e6fe:src/main/resources/level2.txt
+/music/lemon.MP3
 # 這是關卡2的音樂檔案路址
 
 # 這是 level2.txt 檔案的內容
