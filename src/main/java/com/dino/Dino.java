@@ -23,6 +23,11 @@ public class Dino extends Player {
         }
     }
 
+    public void rejump() {
+        yVelocity = JUMP_STRENGTH;
+        isJumping = true;
+    }
+
     @Override
     public void update() {
         y += yVelocity;
@@ -30,7 +35,11 @@ public class Dino extends Player {
 
         if (y >= MainApplication.getHEIGHT() - 50 - DINO_HEIGHT) {
             y = MainApplication.getHEIGHT() - 50 - DINO_HEIGHT;
-            isJumping = false;
+            if (isUpKeyPressed) {
+                rejump();
+            } else {
+                isJumping = false;
+            }
         }
 
         if (!isJumping) {
