@@ -10,11 +10,21 @@ public abstract class Player {
     protected double x = 50;
     protected double yVelocity = 0;
     protected boolean isJumping = false;
+    boolean isUpKeyPressed = false;
     
     public abstract void update();
     public abstract void render(GraphicsContext gc);
     
     // Common methods for all player types
+
+    public void setUpKeyPressed(boolean pressed) {
+        this.isUpKeyPressed = pressed;
+    }
+
+    public boolean isUpKeyPressed() {
+        return isUpKeyPressed;
+    }
+
     public double getY() {
         return y;
     }

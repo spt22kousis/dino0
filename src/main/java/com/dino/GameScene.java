@@ -124,6 +124,7 @@ public class GameScene extends Pane {
         if (gameTimer != null) {
             gameTimer.stop();
         }
+        BgmPlayer.getInstance().stop();
     }
 
     // Create player based on game mode
@@ -165,15 +166,16 @@ public class GameScene extends Pane {
     public void handleInput(KeyCode code) {
         if (!gameOver && !levelComplete) {
             if (code == KeyCode.SPACE || code == KeyCode.UP) {
+                player.setUpKeyPressed(true);
                 if (gameMode == GameMode.DINO && player instanceof Dino) {
                     ((Dino) player).jump();
-                } else if (gameMode == GameMode.WAVE && player instanceof Wave) {
-                    ((Wave) player).setUpKeyPressed(true);
+//                } else if (gameMode == GameMode.WAVE && player instanceof Wave) {
+//                    ((Wave) player).setUpKeyPressed(true);
                 }
-            } else if (code == KeyCode.DOWN) {
-                if (gameMode == GameMode.WAVE && player instanceof Wave) {
-                    ((Wave) player).setUpKeyPressed(false);
-                }
+//            } else if (code == KeyCode.DOWN) {
+//                if (gameMode == GameMode.WAVE && player instanceof Wave) {
+//                    ((Wave) player).setUpKeyPressed(false);
+//                }
             }
         }
 
@@ -188,11 +190,11 @@ public class GameScene extends Pane {
 
     // Key release handler for Wave mode
     public void handleKeyReleased(KeyCode code) {
-        if (gameMode == GameMode.WAVE && player instanceof Wave) {
-            if (code == KeyCode.SPACE || code == KeyCode.UP) {
-                ((Wave) player).setUpKeyPressed(false);
-            }
+//        if (gameMode == GameMode.WAVE && player instanceof Wave) {
+        if (code == KeyCode.SPACE || code == KeyCode.UP) {
+            player.setUpKeyPressed(false);
         }
+//        }
     }
 
     private void loadLevel(String levelFilePath) {
@@ -215,7 +217,7 @@ public class GameScene extends Pane {
         }
 
         try (InputStream is = getClass().getResourceAsStream(levelFilePath);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
 
             String line, songpath;
             // 載入音樂

@@ -9,7 +9,7 @@ public class Wave extends Player {
     public static final int WAVE_HEIGHT = PLAYER_HEIGHT;
     private static final double VERTICAL_SPEED = 10; // Constant speed for rising/falling
 
-    private boolean isUpKeyPressed = false;
+
     private Image waveUpImage;
     private Image waveDownImage;
 
@@ -18,13 +18,7 @@ public class Wave extends Player {
         this.waveDownImage = new Image(getClass().getResourceAsStream("/picture/wave_down.png"), WAVE_WIDTH, WAVE_HEIGHT, false, false);
     }
 
-    public void setUpKeyPressed(boolean pressed) {
-        this.isUpKeyPressed = pressed;
-    }
 
-    public boolean isUpKeyPressed() {
-        return isUpKeyPressed;
-    }
 
     @Override
     public void update() {
