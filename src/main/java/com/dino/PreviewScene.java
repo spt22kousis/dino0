@@ -1,3 +1,5 @@
+package com.dino;
+
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -34,7 +36,7 @@ public class PreviewScene extends Pane {
         gc = canvas.getGraphicsContext2D();
         getChildren().add(canvas);
 
-        loadLevel("level1.txt");
+        loadLevel("/level1.txt");
     }
 
     public void startPreviewLoop() {

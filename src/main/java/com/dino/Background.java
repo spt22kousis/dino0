@@ -1,3 +1,5 @@
+package com.dino;
+
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
@@ -20,7 +22,7 @@ public class Background {
      */
     public Background(String imagePath, double width, double height) {
         // Load background image
-        backgroundImage = new Image(imagePath, width, height, false, false);
+        backgroundImage = new Image(getClass().getResourceAsStream(imagePath), width, height, false, false);
     }
 
     /**

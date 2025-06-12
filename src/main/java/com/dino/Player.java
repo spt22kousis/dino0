@@ -1,3 +1,5 @@
+package com.dino;
+
 import javafx.scene.canvas.GraphicsContext;
 
 public abstract class Player {

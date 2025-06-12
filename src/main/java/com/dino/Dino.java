@@ -1,7 +1,8 @@
+package com.dino;
+
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-// import javafx.geometry.Rectangle2D;
 
 public class Dino extends Player {
     public static final int DINO_WIDTH = PLAYER_WIDTH;
@@ -12,7 +13,7 @@ public class Dino extends Player {
     private Image dinoImage;
 
     public Dino() {
-        this.dinoImage = new Image("file:./picture/dino.png", DINO_WIDTH, DINO_HEIGHT, false, false);
+        this.dinoImage = new Image(getClass().getResourceAsStream("/picture/dino.png"), DINO_WIDTH, DINO_HEIGHT, false, false);
     }
 
     public void jump() {

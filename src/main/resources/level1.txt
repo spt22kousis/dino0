@@ -1,4 +1,4 @@
-.//music/Unity.MP3
+/music/Unity.MP3
 # 這是關卡1的音樂檔案路址
 
 # 這是 level.txt 檔案的範例內容 (支援浮空障礙物)
