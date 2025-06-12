@@ -6,26 +6,26 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="600" prefWidth="800" spacing="20" style="-fx-background-color: lightblue;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="MainMenuController">
-    
+<VBox alignment="CENTER" prefHeight="600" prefWidth="800" spacing="20" style="-fx-background-color: lightblue;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="com.dino.MainMenuController">
+
     <Label style="-fx-text-fill: DARKBLUE; -fx-font-size: 40px;" text="Dino 遊戲" />
-    
+
     <VBox alignment="CENTER" spacing="15">
         <Label style="-fx-text-fill: BLACK; -fx-font-size: 24px;" text="選擇關卡" />
-        
+
         <Button fx:id="level1Button" prefWidth="200" text="關卡 1" onAction="#playLevel1">
             <font>
                 <Font size="18.0" />
             </font>
         </Button>
-        
+
         <Button fx:id="level2Button" prefWidth="200" text="關卡 2" onAction="#playLevel2">
             <font>
                 <Font size="18.0" />
             </font>
         </Button>
     </VBox>
-    
+
     <padding>
         <Insets bottom="50" left="20" right="20" top="50" />
     </padding>

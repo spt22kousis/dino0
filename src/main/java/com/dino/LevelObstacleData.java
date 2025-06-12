@@ -1,3 +1,5 @@
+package com.dino;
+
 public class LevelObstacleData {
     double spawnTriggerX;
     double width;
