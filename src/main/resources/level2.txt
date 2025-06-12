@@ -4,10 +4,8 @@
 # 這是 level2.txt 檔案的內容
 # 格式: spawn_trigger_x,width,height,y_position,type
 # 遊戲世界每秒前進600像素
-# level2.txt - 15000px 全長炸藥關卡
-# 格式：spawn_trigger_x,width,height,y_position,type
 
-1000.0,50.0,50.0,30.0,regular
+1000.0,50.0,50.0,500.0,regular
 1070.0,60.0,60.0,470.0,regular
 1140.0,60.0,60.0,70.0,regular
 1200.0,50.0,50.0,300.0,regular
