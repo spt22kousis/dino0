@@ -43,7 +43,7 @@ public abstract class Obstacle {
         int playerHeight = Player.PLAYER_HEIGHT;
 
         if (player.getX() + playerWidth >= this.x && player.getX() <= this.x + width) {
-            if (player.getY() + playerHeight - 10 >= this.y) {
+            if (player.getY() + playerHeight - 10 >= this.y && player.getY() <= this.y + height) {
                 return true;
             }
         }
