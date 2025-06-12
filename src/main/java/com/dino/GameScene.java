@@ -1,3 +1,5 @@
+package com.dino;
+
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
@@ -23,7 +25,6 @@ enum GameMode {
     DINO,
     WAVE
 }
-// import java.util.Random;
 
 public class GameScene extends Pane {
 
@@ -32,7 +33,6 @@ public class GameScene extends Pane {
     private Player player;
     private GameMode gameMode = GameMode.DINO; // Default game mode
     private List<Obstacle> obstacles = new ArrayList<>();
-    // private Random random = new Random();
     private long score = 0;
     private boolean gameOver = false;
     private boolean dying = false;
@@ -48,7 +48,7 @@ public class GameScene extends Pane {
     private double finalLevelDistance = 0;
     private boolean levelModeActive = true;
     private boolean allLevelObstaclesSpawned = false;
-    private String currentLevelFile = "level1.txt"; // Default level file
+    private String currentLevelFile = "/level1.txt"; // Default level file
 
     private GraphicsContext gc;
     // 控制遊戲迴圈的執行續
@@ -74,17 +74,17 @@ public class GameScene extends Pane {
         requestFocus();
 
         // 載入爆炸圖片
-        explosionImage = new Image("file:./picture/explosion.png");
+        explosionImage = new Image(getClass().getResourceAsStream("/picture/explosion.png"));
 
         // Initialize player based on game mode
         createPlayer();
         loadLevel(levelFile);
 
         // 初始化背景 - 根據關卡選擇不同背景
-        if (levelFile.equals("level2.txt")) {
-            background = new Background("./picture/bg2.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+        if (levelFile.equals("/level2.txt")) {
+            background = new Background("/picture/bg2.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
         } else {
-            background = new Background("./picture/bg.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
+            background = new Background("/picture/bg.jpg", MainApplication.getWIDTH(), MainApplication.getHEIGHT());
         }
     }
 
@@ -153,7 +153,6 @@ public class GameScene extends Pane {
         createPlayer();
     }
 
-
     public boolean isGameOver() {
         return gameOver;
     }
@@ -209,15 +208,10 @@ public class GameScene extends Pane {
         currentLevelFile = levelFilePath;
 
         // Set game mode based on level file
-        boolean isLevel2 = levelFilePath.equals("level2.txt");
-        if (levelFilePath.equals("level1.txt")) {
+        if (levelFilePath.equals("/level1.txt")) {
             setGameMode(GameMode.DINO);
-            PlatformObstacle.setIsLevel2(false);
-            RegularObstacle.setIsLevel2(false);
-        } else if (isLevel2) {
+        } else if (levelFilePath.equals("/level2.txt")) {
             setGameMode(GameMode.WAVE);
-            PlatformObstacle.setIsLevel2(true);
-            RegularObstacle.setIsLevel2(true);
         }
 
         try (InputStream is = getClass().getResourceAsStream(levelFilePath);
@@ -242,7 +236,7 @@ public class GameScene extends Pane {
                         double yPosition = Double.parseDouble(parts[3].trim());
                         String type = parts[4].trim().toLowerCase();
 
-                        if (!type.equals("regular") && !type.equals("platform")) {
+                        if (!type.equals("regular") && !type.equals("platform") && !type.equals("lemon")) {
                             System.err.println("關卡檔案中未知障礙物類型 '" + type + "'，行：" + line + "。預設為 'regular'。");
                             type = "regular";
                         }
@@ -287,8 +281,10 @@ public class GameScene extends Pane {
                     Obstacle newObstacle;
                     if (data.type.equals("platform")) {
                         newObstacle = new PlatformObstacle(data.width, data.height, data.yPosition);
-                    } else {
+                    } else if (data.type.equals("regular")) {
                         newObstacle = new RegularObstacle(data.width, data.height, data.yPosition);
+                    } else {
+                        newObstacle = new LemonObstacle(data.width, data.height, data.yPosition);
                     }
                     obstacles.add(newObstacle);
                     currentSequenceIndex++;
@@ -312,13 +308,6 @@ public class GameScene extends Pane {
                 }
             }
         } else if (!allLevelObstaclesSpawned) {
-            // if (obstacles.isEmpty()
-            // || (now - (obstacles.get(obstacles.size() - 1).getSpawnTime())) > (1500 +
-            // random.nextInt(1000))
-            // * 1_000_000L) {
-            // RegularObstacle newRandomObstacle = new RegularObstacle();
-            // obstacles.add(newRandomObstacle);
-            // }
             System.exit(-1);
         }
 
@@ -407,7 +396,7 @@ public class GameScene extends Pane {
 
         // 2. 載入 GameOver.fxml
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("./GameOver.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/GameOver.fxml"));
             Parent gameOverRoot = loader.load();
 
             // 3. 取得 Controller，把分數與完成度傳進去
@@ -440,7 +429,7 @@ public class GameScene extends Pane {
 
         // 2. 載入 LevelComplete.fxml
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("./LevelComplete.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/LevelComplete.fxml"));
             Parent levelCompleteRoot = loader.load();
 
             // 3. 取得 Controller，把分數與完成度傳進去

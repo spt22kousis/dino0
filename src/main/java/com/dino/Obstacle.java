@@ -1,3 +1,5 @@
+package com.dino;
+
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
@@ -15,12 +17,12 @@ public abstract class Obstacle {
     protected Image image;
     protected long spawnTime;
 
-    public Obstacle(double width, double height, double yPosition, String imapePath) {
+    public Obstacle(double width, double height, double yPosition, String imagePath) {
         this.x = MainApplication.getWIDTH();
         this.width = width;
         this.height = height;
         this.y = yPosition;
-        this.image = new Image(imapePath, width, height, false, false);
+        this.image = new Image(getClass().getResourceAsStream(imagePath), width, height, false, false);
     }
 
     public void update() {

@@ -1,6 +1,6 @@
+package com.dino;
+
 import javafx.scene.canvas.GraphicsContext;
-// import javafx.scene.paint.Color;
-// import java.util.Random;
 
 public class PlatformObstacle extends Obstacle {
 
@@ -8,23 +8,12 @@ public class PlatformObstacle extends Obstacle {
     private boolean colide = false;
     private static boolean isLevel2 = false;
 
-    // public PlatformObstacle() {
-    // super();
-    // Random localRandom = new Random();
-    // this.width = OBSTACLE_MIN_WIDTH + localRandom.nextInt(OBSTACLE_MAX_WIDTH -
-    // OBSTACLE_MIN_WIDTH + 1);
-    // this.height = OBSTACLE_MIN_HEIGHT + localRandom.nextInt(OBSTACLE_MAX_HEIGHT -
-    // OBSTACLE_MIN_HEIGHT + 1);
-    // this.y = MainApplication.getHEIGHT() - 50 - this.height;
-    // this.color = Color.ORANGE;
-    // }
-
     public static void setIsLevel2(boolean level2) {
         isLevel2 = level2;
     }
 
     public PlatformObstacle(double width, double height, double yPosition) {
-        super(width, height, yPosition, isLevel2 ? ".//picture/platform2.png" : ".//picture/platform.png");
+        super(width, height, yPosition, isLevel2 ? "/picture/platform2.png" : "/picture/platform.png");
     }
 
     @Override

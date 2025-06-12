@@ -1,3 +1,5 @@
+package com.dino;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
@@ -18,14 +20,14 @@ public class MainMenuController {
     @FXML
     private void playLevel1() {
         if (mainApp != null) {
-            mainApp.startGame("level1.txt");
+            mainApp.startGame("/level1.txt");
         }
     }
     
     @FXML
     private void playLevel2() {
         if (mainApp != null) {
-            mainApp.startGame("level2.txt");
+            mainApp.startGame("/level2.txt");
         }
     }
 }

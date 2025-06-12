@@ -1,3 +1,5 @@
+package com.dino;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -28,7 +30,7 @@ public class MainApplication extends Application {
 
     public void showStartMenu() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("MainMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainMenu.fxml"));
             Parent root = loader.load();
 
             // Get the controller and set the main application reference
@@ -58,11 +60,11 @@ public class MainApplication extends Application {
 
         Button level1Button = new Button("關卡 1");
         level1Button.setFont(new Font("Arial", 24));
-        level1Button.setOnAction(e -> startGame("level1.txt"));
+        level1Button.setOnAction(e -> startGame("/level1.txt"));
 
         Button level2Button = new Button("關卡 2");
         level2Button.setFont(new Font("Arial", 24));
-        level2Button.setOnAction(e -> startGame("level2.txt"));
+        level2Button.setOnAction(e -> startGame("/level2.txt"));
 
         menuRoot.getChildren().addAll(title, level1Button, level2Button);
 
